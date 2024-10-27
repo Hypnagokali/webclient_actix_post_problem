@@ -17,18 +17,26 @@ public class WebClientActixApi {
             .build();
     }
 
-    public Mono<Void> doTestRequest() {
-        log.info( "start do-some-action" );
-        return webClient.post().uri( "/do-some-action/123" )
+    public Mono<Void> doSendTestRequestThatHangsAfterSomeCalls() {
+        log.info( "start do-some-action (without Content-Length) -> hangs after some calls" );
+        return webClient.post().uri( "/do-some-action" )
             .retrieve()
             .bodyToMono(Void.class);
     }
 
-    public Mono<Void> doTestRequestThatWorks() {
-        log.info( "start do-some-action" );
-        return webClient.post().uri( "/do-some-action/123" )
-            .bodyValue( "" )
+    public Mono<Void> doSendTestRequestThatIsReadByByteExtractor() {
+        log.info( "do-some-action-read-body (without Content-Length) -> works" );
+        return webClient.post().uri( "/do-some-action-read-body" )
             .retrieve()
             .bodyToMono(Void.class);
     }
+
+    public Mono<Void> doSendWithContentLength0() {
+        log.info( "start do-some-action (with Content-Length) -> works" );
+        return webClient.post().uri( "/do-some-action" )
+            .contentLength( 0 )
+            .retrieve()
+            .bodyToMono(Void.class);
+    }
+
 }

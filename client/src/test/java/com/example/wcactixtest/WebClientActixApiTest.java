@@ -12,17 +12,26 @@ class WebClientActixApiTest {
     WebClientActixApi webClientActixApi;
 
     @Test
-    void hangsAfterSecondRequest() {
-        StepVerifier.create(webClientActixApi.doTestRequest()).verifyComplete();
-        StepVerifier.create(webClientActixApi.doTestRequest()).verifyComplete();
-        StepVerifier.create(webClientActixApi.doTestRequest()).verifyComplete();
+    void hangsAfterFirstOrSecondRequest() {
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatHangsAfterSomeCalls()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatHangsAfterSomeCalls()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatHangsAfterSomeCalls()).verifyComplete();
     }
 
     @Test
-    void withEmptyStringAsBodyItWorks() {
-        StepVerifier.create(webClientActixApi.doTestRequestThatWorks()).verifyComplete();
-        StepVerifier.create(webClientActixApi.doTestRequestThatWorks()).verifyComplete();
-        StepVerifier.create(webClientActixApi.doTestRequestThatWorks()).verifyComplete();
-
+    void worksWhenUsingByteExtractorOnActixSide() {
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatIsReadByByteExtractor()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatIsReadByByteExtractor()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatIsReadByByteExtractor()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatIsReadByByteExtractor()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendTestRequestThatIsReadByByteExtractor()).verifyComplete();
     }
+
+    @Test
+    void worksWhenSendingContentLength() {
+        StepVerifier.create(webClientActixApi.doSendWithContentLength0()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendWithContentLength0()).verifyComplete();
+        StepVerifier.create(webClientActixApi.doSendWithContentLength0()).verifyComplete();
+    }
+
 }

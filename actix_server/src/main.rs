@@ -1,9 +1,33 @@
+use actix_multipart::Multipart;
 use actix_web::{App, HttpResponse, HttpServer, post, Responder};
-use actix_web::web::Bytes;
+use actix_web::web::{Bytes, Path};
+use futures_util::StreamExt;
 
-#[post("/do-some-action")]
-async fn post_test() -> impl Responder {
-    println!("Request do-some-action");
+#[post("/upload/{id}")]
+async fn post_upload(mut payload: Multipart, id: Path<u32>) -> impl Responder {
+    println!("Request upload: id = {}", id);
+    while let Some(item) = payload.next().await {
+        let mut field = item.unwrap();
+        
+        // Get field metadata
+        let content_disposition = field.content_disposition().unwrap();
+        let filename = content_disposition
+            .get_filename()
+            .map(|f| f.to_string())
+            .unwrap_or_else(|| "file.bin".to_string());
+
+
+        // Write field content (stream of chunks)
+        while let Some(chunk) = field.next().await {
+            println!("Next chunk: {:?}", chunk.unwrap());
+        }
+    }
+    HttpResponse::Ok().finish()
+}
+
+#[post("/do-some-action/{id}")]
+async fn post_test(id: Path<u32>) -> impl Responder {
+    println!("Request do-some-action: id = {}", id);
     HttpResponse::Ok().finish()
 }
 
@@ -19,9 +43,11 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(post_test)
+            .service(post_upload)
             .service(post_test_read_body)
     })
         .bind(("127.0.0.1", 7070))?
         .run()
         .await
 }
+

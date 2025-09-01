@@ -28,7 +28,7 @@ public class WebClientActixApi {
     @SneakyThrows
     public Mono<Void> sendFiles() {
         log.info( "send multipart" );
-        URI uri = getClass().getResource( "/hasen.txt" ).toURI();
+        URI uri = getClass().getResource( "/test.txt" ).toURI();
         File file = new File( uri );
         MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
         multipartBodyBuilder.part( "file", new FileSystemResource( file ), MediaType.TEXT_PLAIN);

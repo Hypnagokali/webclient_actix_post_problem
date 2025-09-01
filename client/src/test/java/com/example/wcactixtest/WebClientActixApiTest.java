@@ -17,6 +17,8 @@ import reactor.test.StepVerifier;
 @SpringBootTest
 class WebClientActixApiTest {
 
+    static int postCount = 1;
+
     @Autowired
     WebClientActixApi webClientActixApi;
 
@@ -45,8 +47,8 @@ class WebClientActixApiTest {
 
     @Test
     void sendFilesTest() {
-//        StepVerifier.create( webClientActixApi.sendFiles() ).verifyComplete();
-//        StepVerifier.create( webClientActixApi.sendFiles() ).verifyComplete();
+        StepVerifier.create( webClientActixApi.sendFiles() ).verifyComplete();
+        StepVerifier.create( webClientActixApi.sendFiles() ).verifyComplete();
         StepVerifier.create( webClientActixApi.sendFiles() ).verifyComplete();
     }
 
@@ -72,6 +74,10 @@ class WebClientActixApiTest {
             doPost( out, hostPort );
             readEmptyResponse( reader );
 
+            // Third request
+            doPost( out, hostPort );
+            readEmptyResponse( reader );
+
         }
         catch ( IOException e ) {
             e.printStackTrace();
@@ -79,7 +85,8 @@ class WebClientActixApiTest {
     }
 
     private static void readEmptyResponse(BufferedReader reader) throws IOException {
-        System.out.println("Try read response");
+        System.out.printf("Try reading response (%d)%n", postCount);
+        postCount++;
         String line;
         while ( ( line = reader.readLine() ) != null ) {
             System.out.println( "Next data from Server: " + line + "(length: " + line.length() + ")" );
@@ -91,7 +98,7 @@ class WebClientActixApiTest {
 
     private static void doPost(OutputStream out, String hostPort)
         throws IOException {
-        System.out.println( "Do Multipart POST chunked" );
+        System.out.printf( "Do Multipart POST chunked (%d)%n", postCount );
         String fileContent = "Hello, this is a text file content!";
         int length = fileContent.getBytes( StandardCharsets.UTF_8 ).length;
         String fileName = "test.txt";

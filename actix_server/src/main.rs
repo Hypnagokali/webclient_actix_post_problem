@@ -9,15 +9,12 @@ async fn post_upload(mut payload: Multipart, id: Path<u32>) -> impl Responder {
     while let Some(item) = payload.next().await {
         let mut field = item.unwrap();
         
-        // Get field metadata
         let content_disposition = field.content_disposition().unwrap();
-        let filename = content_disposition
+        let _ = content_disposition
             .get_filename()
             .map(|f| f.to_string())
             .unwrap_or_else(|| "file.bin".to_string());
 
-
-        // Write field content (stream of chunks)
         while let Some(chunk) = field.next().await {
             println!("Next chunk: {:?}", chunk.unwrap());
         }
@@ -46,6 +43,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_upload)
             .service(post_test_read_body)
     })
+        // .keep_alive(Duration::from_secs(75))
         .bind(("127.0.0.1", 7070))?
         .run()
         .await
